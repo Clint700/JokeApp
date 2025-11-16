@@ -1,20 +1,16 @@
 # app.py
 import random
 import streamlit as st
-from llm_utils.lc_llm import build_chain  # The AI's 'manager'
+from llm_utils.lc_llm import build_chain
 
-# ---------------------------------------------------------
 # Page config
-# ---------------------------------------------------------
 st.set_page_config(
     page_title="The Comedy Cellar 🎤",
     page_icon="🎤",
     layout="centered",
 )
 
-# ---------------------------------------------------------
 # Custom CSS – One big, beautiful card
-# ---------------------------------------------------------
 st.markdown(
     """
     <style>
@@ -95,9 +91,8 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ---------------------------------------------------------
-# The Brains: Now with more chaos!
-# ---------------------------------------------------------
+
+# The Brains of the Operation
 @st.cache_resource
 def get_joke_chain():
     """
@@ -108,8 +103,6 @@ def get_joke_chain():
     def joke_prompt(inputs: dict) -> str:
         profession = inputs.get("profession", "professional")
         
-        # --- THIS IS THE MAGIC ---
-        # We will randomly pick a *style* of joke to ask for.
         joke_styles = [
             "a hilarious one-liner",
             "a short, funny story",
@@ -119,7 +112,6 @@ def get_joke_chain():
             "a sarcastic complaint",
         ]
         chosen_style = random.choice(joke_styles)
-        # --- END OF MAGIC ---
         
         return (
             "You are a 'top-tier, headliner' stand-up comedian. You're confident, funny, and a bit unhinged.\n"
@@ -140,15 +132,10 @@ def get_joke_chain():
 
 joke_chain = get_joke_chain()
 
-# ---------------------------------------------------------
-# The App's 'Brain' (Session State) - Now much simpler!
-# ---------------------------------------------------------
+# Apps state
 if "current_joke" not in st.session_state:
     st.session_state.current_joke = None # Just one joke. Nice and simple.
 
-# ---------------------------------------------------------
-# The Joke Wrangler™ - Simpler and better
-# ---------------------------------------------------------
 def generate_joke(profession: str):
     """
     Just asks the AI for a joke. The randomness in the prompt
@@ -166,9 +153,6 @@ def generate_joke(profession: str):
     st.session_state.current_joke = response_text
 
 
-# ---------------------------------------------------------
-# The Grand Entrance (Header)
-# ---------------------------------------------------------
 st.markdown(
     """
     <div class="header-container">
@@ -179,9 +163,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ---------------------------------------------------------
-# The Control Panel
-# ---------------------------------------------------------
 st.markdown('<div class="control-card">', unsafe_allow_html=True)
 profession = st.selectbox(
     "Who's the target tonight?",
@@ -206,19 +187,14 @@ st.markdown("</div>", unsafe_allow_html=True)
 # The "GO" button
 if st.button("😂 Let's hear it!", type="primary"):
     try:
-        # This is where the magic (or chaos) happens
         with st.spinner(f"Pacing the stage for a {profession} bit..."):
             generate_joke(profession)
     except Exception as e:
         st.error(f"Oof, tough crowd. The AI bombed. Error: {e}")
         st.session_state.current_joke = None
 
-# ---------------------------------------------------------
-# The Main Stage (Display Area) - SO much simpler
-# ---------------------------------------------------------
 if st.session_state.current_joke:
-    
-    # --- Just one card. Clean. Simple. Funny. ---
+
     st.markdown(
         f'<div class="joke-card-display">{st.session_state.current_joke}</div>',
         unsafe_allow_html=True,
